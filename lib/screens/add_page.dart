@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -93,36 +93,30 @@ class _AddToDoPageState extends State<AddToDoPage> {
 
     // show success or fail message based on status
     if (response.statusCode == 201){
+      titleController.text = '';
+      descriptionController.text = '';
       print('Creation Success');
       showSuccessMessage('Saved');
     }else{
       print('Creation Failed');
       print(response.body);
-      showSuccessMessage('Failed');
+      showErrorMessage('Failed');
     }
   }
 
-  void showSuccessMessage(String msg){
-    final snackBar = SnackBar(
-      content: Text(msg,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.white
-      ),
-      ),
-      backgroundColor: Colors.green,);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void showSuccessMessage(String message){
+    final snackBar = AnimatedSnackBar.material(
+      message, 
+      type: AnimatedSnackBarType.success,
+      duration: Duration(seconds: 1),
+    ).show(context);
   }
 
-  void showErrorMessage(String msg){
-    final snackBar = SnackBar(
-      content: Text(msg,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.white
-      ),
-      ),
-      backgroundColor: Colors.red,);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void showErrorMessage(String message){
+    final snackBar = AnimatedSnackBar.material(
+      message, 
+      type: AnimatedSnackBarType.error,
+      duration: Duration(seconds: 1),
+    ).show(context);
   }
 }
