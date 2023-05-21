@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddToDoPage extends StatefulWidget {
   const AddToDoPage({super.key});
@@ -8,7 +11,8 @@ class AddToDoPage extends StatefulWidget {
 }
 
 class _AddToDoPageState extends State<AddToDoPage> {
-  @override
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -18,6 +22,7 @@ class _AddToDoPageState extends State<AddToDoPage> {
         padding: EdgeInsets.symmetric(horizontal: 20),
         children: [
           TextField(
+            controller: titleController,
             decoration: InputDecoration(
               hintText: 'Add Title',
             ),
@@ -26,7 +31,11 @@ class _AddToDoPageState extends State<AddToDoPage> {
               fontSize: 20,
             ),
           ),
+          SizedBox(
+            height: 20,
+          ),
           TextField(
+            controller: descriptionController,
             decoration: InputDecoration(
               hintText: 'Add Description',
             ),
@@ -48,7 +57,7 @@ class _AddToDoPageState extends State<AddToDoPage> {
           //   ),
           // ),
           MaterialButton(
-            onPressed: () {},
+            onPressed: saveData,
             color: Colors.green,
             textColor: Colors.white,
             child: Icon(
@@ -61,5 +70,59 @@ class _AddToDoPageState extends State<AddToDoPage> {
         ],
       ),
     );
+  }
+
+  Future<void> saveData() async {
+    // get the data from form
+    final title = titleController.text;
+    final description = descriptionController.text;
+    final body = {
+      "title": title,
+      "description": description,
+      "is_completed": false,
+    };
+
+    // submit data to server
+    final url = 'https://api.nstack.in/v1/todos';
+    final uri = Uri.parse(url);
+    final response = await http.post(
+      uri, 
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json',}
+    );
+
+    // show success or fail message based on status
+    if (response.statusCode == 201){
+      print('Creation Success');
+      showSuccessMessage('Saved');
+    }else{
+      print('Creation Failed');
+      print(response.body);
+      showSuccessMessage('Failed');
+    }
+  }
+
+  void showSuccessMessage(String msg){
+    final snackBar = SnackBar(
+      content: Text(msg,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white
+      ),
+      ),
+      backgroundColor: Colors.green,);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void showErrorMessage(String msg){
+    final snackBar = SnackBar(
+      content: Text(msg,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white
+      ),
+      ),
+      backgroundColor: Colors.red,);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
