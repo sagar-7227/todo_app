@@ -1,6 +1,6 @@
 # todo_app
 
-A new Flutter project.
+Flutter ToD0 App using Rest API.
 
 ## Getting Started
 
