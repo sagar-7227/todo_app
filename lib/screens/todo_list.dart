@@ -35,34 +35,46 @@ class _ToDoListPageState extends State<ToDoListPage> {
         ),
         replacement: RefreshIndicator(
           onRefresh: fetchToDo,
-          child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index] as Map;
-                final id = item['_id'] as String;
-                return ListTile(
-                  leading: CircleAvatar(child: Text('${index + 1}')),
-                  title: Text(item['title']),
-                  subtitle: Text(item['description']),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            // Open Edit Page
-                            navigateToEditPage(item);
-                          },
-                          icon: Icon(Icons.edit)),
-                      IconButton(
-                          onPressed: () {
-                            // Delete and remove the item
-                            deleteById(id);
-                          },
-                          icon: Icon(Icons.delete)),
-                    ],
-                  ),
-                );
-              }),
+          child: Visibility(
+            visible: items.isNotEmpty,
+            replacement: Center(
+              child: Text(
+                'No ToDo Item',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
+            child: ListView.builder(
+              padding: EdgeInsets.all(10),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index] as Map;
+                  final id = item['_id'] as String;
+                  return Card(
+                    child: ListTile(
+                      leading: CircleAvatar(child: Text('${index + 1}')),
+                      title: Text(item['title']),
+                      subtitle: Text(item['description']),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                // Open Edit Page
+                                navigateToEditPage(item);
+                              },
+                              icon: Icon(Icons.edit)),
+                          IconButton(
+                              onPressed: () {
+                                // Delete and remove the item
+                                deleteById(id);
+                              },
+                              icon: Icon(Icons.delete)),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -72,11 +84,17 @@ class _ToDoListPageState extends State<ToDoListPage> {
     );
   }
 
-  void navigateToEditPage(Map item) {
+  Future<void> navigateToEditPage(Map item) async {
     final route = MaterialPageRoute(
-      builder: (context) => AddToDoPage(todo: item,),
+      builder: (context) => AddToDoPage(
+        todo: item,
+      ),
     );
-    Navigator.push(context, route);
+    await Navigator.push(context, route);
+    setState(() {
+      isLoading = true;
+    });
+    fetchToDo();
   }
 
   Future<void> navigateToAddPage() async {

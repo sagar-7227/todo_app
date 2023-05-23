@@ -101,10 +101,16 @@ class _AddToDoPageState extends State<AddToDoPage> {
     // submit update data to server
     final url = 'https://api.nstack.in/v1/todos/$id';
     final uri = Uri.parse(url);
-    final response = await http.post(uri, body: jsonEncode(body), 
+    final response = await http.put(uri, body: jsonEncode(body), 
     headers: {
       'Content-Type': 'application/json',
-    });
+    }
+    );
+    if (response.statusCode == 200) {
+      showSuccessMessage('Update success.');
+    } else {
+      showErrorMessage('Update failed.');
+    }
   }
 
   Future<void> saveData() async {
